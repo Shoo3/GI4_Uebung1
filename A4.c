@@ -6,11 +6,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-void split_args(char* args[], char line[]){
-  char delimiter[] = " ";
-  char* tmp_str;
-  int index=0;
-  tmp_str = strtok(line, delimiter);
+void split_args(char* args[], char line[], char delimiter[]){
+  int index = 0;
+  char* tmp_str = strtok(line, delimiter);
 
   while(tmp_str!=NULL){
     args[index] = tmp_str;
@@ -18,47 +16,52 @@ void split_args(char* args[], char line[]){
     index++;
   }
   args[index] = NULL;
+  /*
+  index=0;
+
+  while(args[index]!=NULL){
+    printf("%s\n", args[index]);
+    index++;
+  }
+  */
 }
 
-
 int main(int argc, char* argv[], char* envp[]){
-  /*
-
-  */
-  char string[] = "Kurt Kanns 555678 DE";
-  char delimiter[] = " ";
-  char *ptr;
   char* args[100];
-  int index=0;
-
-
-
-
+  char* paths[100];
+  char* env_path;
   char* line;
+  /*
+  env_path = getenv("SET_PATH");  //SET_PATH muss vor Programmausführung gesetzt werden.
+  if(env_path==NULL){
+    paths[0] = getenv("PWD");
+    paths[1] = NULL;
+  }
+
+
+  split_args(paths, env_path);
+  */
   while(1){
-    line = readline("Enter text: ");
-    split_args(args, line);
+    line = readline("My_shell:$");
+    split_args(args, line, " ");
+    add_history(line);
     /*Erzeuge neuen Prozess*/
     pid_t pid = fork();
     int status;
 
     if(pid>=0){ //fork erfolgreich
       if(pid==0){ //Kindprozess
-        printf("Kindprozess:\n");
-        printf("PID =  %d, Eltern PID = %d\n", getpid(), getppid());
-        return execv(argv[1], argv+1);
+        return execv(args[0], args+1);
       }
       else{ //Elternprozess
-        printf("Elternprozess:\n");
-        printf("PID =  %d, Kind PID = %d\n", getpid(), pid);
         wait(&status); //Warte darauf, dass Kindprozess sich beendet und speichere Exit-Code
-        printf("Exit code: %d\n", WEXITSTATUS(status));
       }
     }
     else{
-      printf("Prozesserzeugung fehlgeschlagen\n");
+      printf("Failed\n");
       return 1;
     }
+
     free(line);
   }
   return 0;
