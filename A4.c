@@ -31,20 +31,18 @@ int main(int argc, char* argv[], char* envp[]){
   char* paths[100];
   char* env_path;
   char* line;
-  /*
+
   env_path = getenv("SET_PATH");  //SET_PATH muss vor Programmausführung gesetzt werden.
   if(env_path==NULL){
     paths[0] = getenv("PWD");
     paths[1] = NULL;
   }
 
+  split_args(paths, env_path, ":");
 
-  split_args(paths, env_path);
-  */
   while(1){
     line = readline("My_shell:$");
     split_args(args, line, " ");
-    add_history(line);
     /*Erzeuge neuen Prozess*/
     pid_t pid = fork();
     int status;
